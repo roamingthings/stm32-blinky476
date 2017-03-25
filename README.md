@@ -50,7 +50,7 @@ Start J-Link GDB Server
 **Parameters:** _`-device STM32L476RG -speed 1000 -if SWD`_  
 **Working Directory:** _`$ProjectFileDir$`_  
 
-## Wire J-Link to Nucleo / ST-Linka\
+## Wire J-Link to Nucleo / ST-Link
 
 | J-Link | Signal | Nucleo CN4 | Signal     |
 |--------|--------|------------|------------|
