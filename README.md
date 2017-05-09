@@ -6,8 +6,18 @@ Toolchain: arm-gcc, CLion, J-Link
 
 Available at [GNU ARM Embedded Toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
 
-The last version that is recognized by CLion 2016.3.5 is 5-2016-q3-update. You will need this version if you want to use
+The last version that is recognized by CLion 2017.1.1 is /usr/local/gcc-arm-none-eabi-5_4-2016q3/bin/arm-none-eabi-gdb. You will need this version if you want to use
 CLion for GDB remote debugging. For any other steps you can download and use the current version.
+
+## Download stm32-cmake project
+
+Clone the _stm32-cmake_ project from GitHub: https://github.com/roamingthings/stm32-cmake
+
+## Download STM32CubeL4
+
+Download STM32CubeMX library for the L4 family from ST:
+http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-embedded-software/stm32cubel4.html
+and unpack it on your system.
 
 ## Setup CLion
 
@@ -21,7 +31,7 @@ In CLion Preferences _Build, Execution, Deployment -> Toolchains_
 
 In CLion Preferences _Build, Execute, Deployment -> CMake_
 
-**CMake options:** -DCMAKE_TOOLCHAIN_FILE=conf/toolchains/STM32L476RGTx.cmake  
+**CMake options:** -DSTM32_CHIP=STM32L476RG -DCMAKE_TOOLCHAIN_FILE=_stm32-cmake_/cmake/gcc_stm32.cmake -DSTM32Cube_DIR=_STM32CubeL4_ -DTOOLCHAIN_PREFIX=/usr/local/gcc-arm-none-eabi-6-2017-q1-update 
 **Environment:** _Empty_
 **Generation path:** build
 

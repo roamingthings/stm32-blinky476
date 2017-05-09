@@ -1,45 +1,41 @@
-project(blinky476 C ASM)
-cmake_minimum_required(VERSION 3.5.0)
-set(CMAKE_VERBOSE_MAKEFILE on)
+PROJECT(stm32-blinky476 C CXX ASM)
+set(CMAKE_VERBOSE_MAKEFILE off)
+
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+ENABLE_LANGUAGE(ASM)
+
+FIND_PACKAGE(CMSIS REQUIRED)
+FIND_PACKAGE(STM32HAL COMPONENTS gpio tim rcc flash REQUIRED)
 
 file(GLOB_RECURSE USER_SOURCES "Src/*.c")
-file(GLOB_RECURSE HAL_SOURCES "Drivers/STM32L4xx_HAL_Driver/Src/*.c")
 
-add_library(HAL ${HAL_SOURCES})
-add_library(CMSIS
-        Src/system_stm32l4xx.c
-        startup/startup_stm32l476xx.s)
+INCLUDE_DIRECTORIES(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMSIS_INCLUDE_DIRS}
+    ${STM32HAL_INCLUDE_DIR}
+    Inc
+)
 
-include_directories(Inc)
-include_directories(Drivers/STM32L4xx_HAL_Driver/Inc)
-include_directories(Drivers/CMSIS/Include)
-include_directories(Drivers/CMSIS/Device/ST/STM32L4xx/Include)
+SET(STM32_MIN_HEAP_SIZE "0x200")
+SET(STM32_MIN_STACK_SIZE "0x400")
+SET(STM32_RAM_ORIGIN "0x20000000")
+SET(STM32_RAM_SIZE "96K")
 
+ADD_EXECUTABLE(${CMAKE_PROJECT_NAME}.elf ${USER_SOURCES} ${PROJECT_SOURCES} ${CMSIS_SOURCES} ${STM32HAL_SOURCES})
+
+add_definitions(-DSTM32L476RGT6)
+add_definitions(-DSTM32L476RGx)
 add_definitions(-DSTM32L476xx)
 add_definitions(-DSTM32L4XX)
 add_definitions(-DUSE_STDPERIPH_DRIVER)
+add_definitions(-DUSE_STM32L4XX_NUCLEO)
+add_definitions(-DUSE_HAL_DRIVER)
 
-add_executable(${PROJECT_NAME}.elf ${USER_SOURCES} ${LINKER_SCRIPT})
+STM32_SET_TARGET_PROPERTIES(${CMAKE_PROJECT_NAME}.elf)
+STM32_ADD_HEX_BIN_TARGETS(${CMAKE_PROJECT_NAME}.elf)
 
-target_link_libraries(${PROJECT_NAME}.elf HAL CMSIS)
+#0x20018000
 
-SET(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++11")
-SET(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99")
-
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG -O0")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEBUG -O0")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1")
-endif(CMAKE_BUILD_TYPE MATCHES Debug)
-
-set(CMAKE_EXE_LINKER_FLAGS "-Wl,-gc-sections,-M=${PROJECT_NAME}.map -T${LINKER_SCRIPT}")
-
-set(HEX_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.hex)
-set(BIN_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.bin)
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
-        COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
-        COMMAND ${GDB} -x \"${CMAKE_CURRENT_LIST_DIR}/conf/gdb_load\" --batch
-        COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
+        COMMENT "Downloading..."
+        COMMAND ${CMAKE_DEBUGER} -x \"${CMAKE_CURRENT_LIST_DIR}/conf/gdb_load\" --batch)

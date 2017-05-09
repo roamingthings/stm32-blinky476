@@ -1,5 +1,5 @@
 target extended-remote :2331
 monitor reset
-file "/Users/alxs/Development/Workspaces/AtmelArm/blinky476/build/blinky476.elf"
+file "/Users/alxs/Development/Workspaces/AtmelArm/blinky-l4-clion/build/blinky-l4-clion.elf"
 load
 monitor reset
